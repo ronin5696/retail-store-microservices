@@ -71,12 +71,9 @@ public class KiotaCatalogService implements CatalogService {
   }
 
   /**
-   * NOTE ON WHY THIS IS SAFE: catalogClient is a shared singleton bean
-   * used by every request/every user (see StoreServices.java), so it
-   * would be wrong to store a token as global state on it. Instead the
-   * token is attached to just THIS ONE outbound call via the request
-   * configuration's headers - the same mechanism already used above for
-   * query parameters. No two users' requests ever share state here.
+   * The checked-in Kiota catalog client currently exposes the read operations
+   * only. Keep the service contract intact and fail asynchronously until the
+   * client is regenerated with POST /catalog/products support.
    */
   @Override
   public Mono<Product> createProduct(
@@ -85,36 +82,24 @@ public class KiotaCatalogService implements CatalogService {
     String description,
     int price
   ) {
-    var request =
-      new com.amazon.sample.ui.client.catalog.models.model.Product();
-    request.setName(name);
-    request.setDescription(description);
-    request.setPrice(price);
-
-    return Mono.just(
-      this.catalogClient.catalog()
-        .products()
-        .post(request, requestConfiguration -> {
-          requestConfiguration.headers.add(
-            "Authorization",
-            "Bearer " + token
-          );
-        })
-    ).map(mapper::product);
+    return Mono.error(
+      new UnsupportedOperationException(
+        "Catalog client does not expose POST /catalog/products"
+      )
+    );
   }
 
+  /**
+   * The checked-in Kiota catalog client currently exposes the read operations
+   * only. Keep the service contract intact and fail asynchronously until the
+   * client is regenerated with DELETE /catalog/products/{id} support.
+   */
   @Override
   public Mono<Void> deleteProduct(String token, String productId) {
-    return Mono.fromRunnable(() ->
-      this.catalogClient.catalog()
-        .products()
-        .byId(productId)
-        .delete(requestConfiguration -> {
-          requestConfiguration.headers.add(
-            "Authorization",
-            "Bearer " + token
-          );
-        })
+    return Mono.error(
+      new UnsupportedOperationException(
+        "Catalog client does not expose DELETE /catalog/products/{id}"
+      )
     );
   }
 }
