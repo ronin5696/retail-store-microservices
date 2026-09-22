@@ -19,7 +19,7 @@ COPY .mvn .mvn
 COPY mvnw .
 COPY pom.xml .
 
-RUN ./mvnw dependency:go-offline -B -q
+RUN chmod +x ./mvnw && ./mvnw dependency:go-offline -B -q
 
 COPY ./src ./src
 
@@ -39,7 +39,7 @@ RUN dnf --setopt=install_weak_deps=False install -q -y \
     dnf clean all
 
 # use curl-full to use "telnet://" scheme
-# https://docs.aws.amazon.com/linux/al2023/ug/curl-minimal.html
+# https://docs.aws.amazon.com/linux/amazonlinux/2023/ug/curl-minimal.html
 RUN dnf -q -y swap libcurl-minimal libcurl-full \
     && dnf -q -y swap curl-minimal curl-full
 
