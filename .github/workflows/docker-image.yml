@@ -1,0 +1,35 @@
+name: Build Docker Images
+
+on:
+  push:
+    branches: ["main", "production"]
+  pull_request:
+    branches: ["main", "production"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - ui
+          - catalog
+          - cart
+          - orders
+          - checkout
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Build ${{ matrix.service }} image
+        run: |
+          docker build \
+            --file src/${{ matrix.service }}/Dockerfile \
+            --tag retail-store-${{ matrix.service }}:${{ github.sha }} \
+            src/${{ matrix.service }}
